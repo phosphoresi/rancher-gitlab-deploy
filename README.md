@@ -161,6 +161,10 @@ Options:
   --finish-upgrade / --no-finish-upgrade
                                   Mark the upgrade as finished after it
                                   completes
+  --create-mode / --no-create-mode
+                                  Will create the Rancher stack
+                                  and service, if they are missed
+                                  (needs --new-image option)
   --help                          Show this message and exit.
 
 ```
