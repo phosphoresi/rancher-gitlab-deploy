@@ -1,6 +1,10 @@
 # Rancher GitLab Deployment Tool
 
-**rancher-gitlab-deploy** is a tool for deploying containers built with GitLab CI onto your Rancher infrastructure.
+This container contains
+
+* **rancher-gitlab-deploy** is a tool for deploying containers built with GitLab CI onto your Rancher infrastructure.
+* rancher CLI
+* docker CLI
 
 It fits neatly into the `gitlab-ci.yml` workflow and requires minimal configuration. It will upgrade existing services as part of your CI workflow.
 
@@ -8,13 +12,12 @@ Both GitLab's built in Docker registry and external Docker registries are suppor
 
 `rancher-gitlab-deploy` will pick as much of its configuration up as possible from environment variables set by the GitLab CI runner.
 
-This tool is not suitable if your services are not already created in Rancher. It will upgrade existing services, but will not create new ones. If you need to create services you should use `rancher-compose` in your CI workflow, but that means storing any secret environment variables in your Git repo.
 
 ## Installation
 
 I recommend you use the pre-built container:
 
-https://hub.docker.com/r/cdrx/rancher-gitlab-deploy/
+https://hub.docker.com/r/bretif/rancher-gitlab-deploy/
 
 But you can install the command locally, with `pip`, if you prefer:
 
