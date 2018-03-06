@@ -1,6 +1,6 @@
 FROM python:2.7-alpine
 
-ENV RANCHER_CLI_VERSION=v0.6.5
+ENV RANCHER_CLI_VERSION=v0.6.7
 ENV RANCHER_COMPOSE_VERSION=v0.12.5
 
 ADD . /rancher-gitlab-deploy
