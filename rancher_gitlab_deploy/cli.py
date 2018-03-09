@@ -263,7 +263,7 @@ def main(rancher_url, rancher_key, rancher_secret, environment, stack, service, 
                         upgrade['inServiceStrategy']['launchConfig']['secrets'].append({
                             'type': 'secretReference',
                             'gid': '0',
-                            'mode': '444',
+                            'mode': '400',
                             'name': secret['name'],
                             'secretId': secret['id'],
                             'uid': '0'
