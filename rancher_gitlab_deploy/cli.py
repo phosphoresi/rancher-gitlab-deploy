@@ -44,11 +44,13 @@ from time import sleep
               help="Upgrade service sidekicks at the same time")
 @click.option('--new-sidekick-image', default=None, multiple=True,
               help="If specified, replace the sidekick image (and :tag) with this one during the upgrade", type=(str, str))
+@click.option('--secrets', default=False,
+              help="If specified, add secrets to the service. Set secrets as a list eg <secret1>,<secret2>")
 @click.option('--create-mode/--no-create-mode', default=False,
               help="If specified, create Rancher stack and service if they don't exist")
 @click.option('--debug/--no-debug', default=False,
               help="Enable HTTP Debugging")
-def main(rancher_url, rancher_key, rancher_secret, environment, stack, service, new_image, batch_size, batch_interval, start_before_stopping, upgrade_timeout, wait_for_upgrade_to_finish, finish_upgrade, sidekicks, new_sidekick_image, create_mode, debug):
+def main(rancher_url, rancher_key, rancher_secret, environment, stack, service, new_image, batch_size, batch_interval, start_before_stopping, upgrade_timeout, wait_for_upgrade_to_finish, finish_upgrade, sidekicks, new_sidekick_image, secrets, create_mode, debug):
     """Performs an in service upgrade of the service specified on the command line"""
 
     if debug:
@@ -60,6 +62,10 @@ def main(rancher_url, rancher_key, rancher_secret, environment, stack, service, 
 
     proto, host = rancher_url.split("://")
     api = "%s://%s/v1" % (proto, host)
+    apiv2 = "%s://%s/v2-beta" % (proto, host)
+    stack = stack.replace('.', '-')
+    service = service.replace('.', '-')
+ 
 
     # 0 -> Authenticate all future requests
     session = requests.Session()
@@ -231,6 +237,40 @@ def main(rancher_url, rancher_key, rancher_secret, environment, stack, service, 
             if secondaryLaunchConfigs['name'] in new_sidekick_image:
                 upgrade['inServiceStrategy']['secondaryLaunchConfigs'][idx]['imageUuid'] = 'docker:%s' % new_sidekick_image[secondaryLaunchConfigs['name']]
 
+    if secrets:
+        try:
+            r = session.get("%s/projects/%s/secrets" % (
+                apiv2,
+                environment_id
+            ))
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            bail("Unable to fetch a list of secrets in the environment '%s'" % environment_name)
+
+        secretsj = r.json()['data']
+        secretsl = secrets.split(",")
+        secretid_inplace = []
+
+        for secret_inplace in upgrade['inServiceStrategy']['launchConfig']['secrets']:
+            secretid_inplace.append(secret_inplace['secretId'])
+
+        for secret_param in secretsl:
+            found = False
+            for secret in secretsj:
+                if secret_param == secret['name']:
+                    found = True
+                    if secret['id'] not in secretid_inplace:
+                        upgrade['inServiceStrategy']['launchConfig']['secrets'].append({
+                            'type': 'secretReference',
+                            'gid': '0',
+                            'mode': '444',
+                            'name': secret['name'],
+                            'secretId': secret['id'],
+                            'uid': '0'
+                        })
+            if not found:
+               bail("Secret '%s' not found in the environment '%s'" % (secret_param, environment_name)) 
+                    
     # 5 -> Start the upgrade
 
     try:
@@ -315,3 +355,5 @@ def debug_requests_on():
     requests_log = logging.getLogger("requests.packages.urllib3")
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
+
+main()
