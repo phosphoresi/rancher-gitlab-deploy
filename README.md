@@ -168,11 +168,22 @@ Options:
                                   Will create the Rancher stack
                                   and service, if they are missed
                                   (needs --new-image option)
+  --secrets TEXT                  List of secrets separated by ","
   --help                          Show this message and exit.
 
 ```
 
 ## History
+
+#### [1.8] - 2018-03-09
+Add --secrets option to add secret to a container
+
+#### [1.7] - 2018-03-08
+Upgrade to rancher-cli version 0.6.7
+Add dependencies gettext pwgen util-linux
+
+#### [1.6] - 2018-01-09
+Add `--create` option to create Rancher stack and service, if they are missed
 
 #### [1.5] - 2017-11-25
 Fixed UnicodeError bug with authentication, thank you to @evilmind for the fix
