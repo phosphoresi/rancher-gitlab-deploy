@@ -251,25 +251,37 @@ def main(rancher_url, rancher_key, rancher_secret, environment, stack, service, 
         secretsl = secrets.split(",")
         secretid_inplace = []
 
-        for secret_inplace in upgrade['inServiceStrategy']['launchConfig']['secrets']:
-            secretid_inplace.append(secret_inplace['secretId'])
+        if 'secrets' in upgrade['inServiceStrategy']['launchConfig']:
+            for secret_inplace in upgrade['inServiceStrategy']['launchConfig']['secrets']:
+                secretid_inplace.append(secret_inplace['secretId'])
 
-        for secret_param in secretsl:
-            found = False
+            for secret_param in secretsl:
+                found = False
+                for secret in secretsj:
+                    if secret_param == secret['name']:
+                        found = True
+                        if secret['id'] not in secretid_inplace:
+                            upgrade['inServiceStrategy']['launchConfig']['secrets'].append({
+                                'type': 'secretReference',
+                                'gid': '0',
+                                'mode': '400',
+                                'name': secret['name'],
+                                'secretId': secret['id'],
+                                'uid': '0'
+                            })
+                if not found:
+                    bail("Secret '%s' not found in the environment '%s'" % (secret_param, environment_name)) 
+        else:
             for secret in secretsj:
-                if secret_param == secret['name']:
-                    found = True
-                    if secret['id'] not in secretid_inplace:
-                        upgrade['inServiceStrategy']['launchConfig']['secrets'].append({
-                            'type': 'secretReference',
-                            'gid': '0',
-                            'mode': '400',
-                            'name': secret['name'],
-                            'secretId': secret['id'],
-                            'uid': '0'
-                        })
-            if not found:
-               bail("Secret '%s' not found in the environment '%s'" % (secret_param, environment_name)) 
+                upgrade['inServiceStrategy']['launchConfig']['secrets'].append({
+                   'type': 'secretReference',
+                   'gid': '0',
+                   'mode': '400',
+                   'name': secret['name'],
+                   'secretId': secret['id'],
+                   'uid': '0'
+                })
+
                     
     # 5 -> Start the upgrade
 
