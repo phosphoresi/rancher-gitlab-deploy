@@ -14,6 +14,7 @@ RUN apk --update add tar docker bash curl expect gettext pwgen util-linux && \
     apk add --quiet --no-cache --virtual build-dependencies alpine-sdk linux-headers curl && \
     curl -sSL "https://github.com/rancher/cli/releases/download/${RANCHER_CLI_VERSION}/rancher-linux-amd64-${RANCHER_CLI_VERSION}.tar.gz" | tar -xz -C /usr/local/bin/ --strip-components=2 && \
     curl -sSL "https://github.com/rancher/rancher-compose/releases/download/${RANCHER_COMPOSE_VERSION}/rancher-compose-linux-amd64-${RANCHER_COMPOSE_VERSION}.tar.gz" | tar -xz -C /usr/local/bin/ --strip-components=2 && \
+    mv yq_linux_amd64 /usr/local/bin/yq && \
     chmod +x /usr/local/bin/rancher* && \
     pip install python-swiftclient python-keystoneclient && \
     apk del build-dependencies alpine-sdk linux-headers && \
